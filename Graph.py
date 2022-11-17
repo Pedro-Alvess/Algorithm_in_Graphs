@@ -9,6 +9,7 @@ class Graph():
 
         self._vertices = []
         self._edges = []
+
         for i in range(n):
             self._vertices.append("") 
      
@@ -158,11 +159,35 @@ class Graph():
                 edge_list.append([self.__get_vertice_label(edge[0]),self.__get_vertice_label(edge[1]),edge[2]])
         
         if not edge_list:
-            raise ValueError(f"Theres is no edge adjacent to the vertice {v}")
+            print(f"Theres is no edge adjacent to the vertice {v}")
+
         
         return edge_list
     
+    def adjacency_list(self):
+        """
 
+        """
+        aux_list = []
+        adjacency_list = []
+
+        for vertice in range(self.len_vertices):
+
+            label_name = self.__get_vertice_label(vertice)
+            aux_list.append(label_name)
+            print(f"esta em {label_name} e vertice {vertice}")
+
+            for edge in self.existing_edges(vertice):
+                print("teste ",edge)
+                if edge[0] != label_name:
+                    aux_list.append(edge[0])
+                else:
+                    aux_list.append(edge[1])
+           
+            adjacency_list.append(aux_list)
+            aux_list = []
+        
+        return adjacency_list
 
     #Função de teste
     @property
@@ -171,11 +196,11 @@ class Graph():
         print(self._edges)
 
 #Area de teste
-G = Graph(3)
+G = Graph(4)
 G.label_vertice(0,"A")
 G.label_vertice(1,"B")
 G.label_vertice(2,"C")
-#G.label_vertice(3,"D")
+G.label_vertice(3,"D")
 #G.label_vertice(4,"E")
 G.add_edge(0,1)
 G.add_edge(0,2)
@@ -185,8 +210,8 @@ G.label_edge(0,2,"E51")
 G.ponder_edge(0,2,3)
 G.show
 print(G.existing_edges(1))
-print(G.check_empty_graph)
-print(G.check_full_graph)
+print(G.adjacency_list())
+
 
 
 
