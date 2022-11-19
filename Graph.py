@@ -1,3 +1,5 @@
+import pandas as pd
+
 class Graph():
     def __init__(self,n):
         """
@@ -75,6 +77,13 @@ class Graph():
         else:
             raise ValueError(f"There is no edge adjacent to {v} and {w}.")
 
+    def __get_edge_weight(self, v, w):
+        if not self.check_adjacency(v,w):
+            raise ValueError(f"There is no edge adjacent to {v} and {w}.")
+        
+        return self._edges[self.__get_edge_index(v,w)][2][0]
+
+
 
     def add_edge(self,v,w):
         """
@@ -93,7 +102,7 @@ class Graph():
         if v == w:
             raise TypeError("The Graph library does not support loops")
         
-        self._edges.append([v,w,[0,""]])
+        self._edges.append([v,w,[1,""]])
     
     def remove_edge(self,v,w):
         """
@@ -166,7 +175,7 @@ class Graph():
     
     def adjacency_list(self):
         """
-
+        Creates an adjacency list starting from the graph
         """
         aux_list = []
         adjacency_list = []
@@ -175,10 +184,8 @@ class Graph():
 
             label_name = self.__get_vertice_label(vertice)
             aux_list.append(label_name)
-            print(f"esta em {label_name} e vertice {vertice}")
 
             for edge in self.existing_edges(vertice):
-                print("teste ",edge)
                 if edge[0] != label_name:
                     aux_list.append(edge[0])
                 else:
@@ -188,6 +195,63 @@ class Graph():
             aux_list = []
         
         return adjacency_list
+    
+    def show_adjacency_list(self):
+        """
+        Show adjacency list
+        """
+        aux_list = self.adjacency_list()
+
+        for line in aux_list:
+            for vertice in line:
+                print(vertice, end= "")
+                
+                if line.index(vertice) < len(line) - 1:
+                    print(" --> ", end= "")
+            print() 
+
+    def adjacency_matrix(self):
+        """
+        Creates an adjacency matrix starting from the graph
+        """
+        aux_list = []
+        matrix = []
+
+        for vertice in range(self.len_vertices):
+            aux_list.append(self.__get_vertice_label(vertice))
+        
+        matrix.append(aux_list)
+        aux_list = []
+
+        for v in range(len(self._vertices)):
+            aux_list.append(self.__get_vertice_label(v))
+
+            for w in range(len(self._vertices)):
+                if self.check_adjacency(v,w):
+                    aux_list.append(self.__get_edge_weight(v,w))
+                else:
+                    aux_list.append(0)
+
+            matrix.append(aux_list)
+            aux_list = []
+        
+        return matrix
+
+    def show_adjacency_matrix(self):
+        """
+        Show adjacency matrix
+        """
+        df = {}
+        matrix = self.adjacency_matrix()
+        
+        for x in range(len(matrix) - 1):
+            df[matrix[0][x]] = matrix[x + 1][1:]
+        
+        df = pd.DataFrame(data = df, index = self.adjacency_matrix()[0])
+        df.to_csv('gephi.csv')
+
+        print(df)
+
 
     #Função de teste
     @property
@@ -196,14 +260,17 @@ class Graph():
         print(self._edges)
 
 #Area de teste
-G = Graph(4)
+G = Graph(5)
 G.label_vertice(0,"A")
 G.label_vertice(1,"B")
 G.label_vertice(2,"C")
 G.label_vertice(3,"D")
-#G.label_vertice(4,"E")
+G.label_vertice(4,"E")
 G.add_edge(0,1)
 G.add_edge(0,2)
+G.add_edge(3,4)
+G.ponder_edge(0,2,3)
+G.ponder_edge(0,1,900)
 #G.add_edge(1,2)
 G.show
 G.label_edge(0,2,"E51")
@@ -211,6 +278,9 @@ G.ponder_edge(0,2,3)
 G.show
 print(G.existing_edges(1))
 print(G.adjacency_list())
+G.show_adjacency_list()
+print(G.adjacency_matrix())
+G.show_adjacency_matrix()
 
 
 
