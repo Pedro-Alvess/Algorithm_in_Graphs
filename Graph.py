@@ -151,6 +151,9 @@ class Graph():
 
         return False
     
+    def check_adjacency_between_edges(self,v,w,x,y):
+        pass
+    
     def check_adjacency(self,v,w):
         """
         Check adjaceny between vertices
@@ -210,6 +213,13 @@ class Graph():
                     print(" --> ", end= "")
             print() 
 
+    def adjacency_list_to_csv(self):
+        """
+         Transform the adjacency list into csv
+        """
+        df = pd.DataFrame(data = self.adjacency_list())
+        df.to_csv('gephi.csv',header= False, index= False)
+
     def adjacency_matrix(self):
         """
         Creates an adjacency matrix starting from the graph
@@ -237,20 +247,32 @@ class Graph():
         
         return matrix
 
+    def __create_adjacency_matrix(self):
+        """
+        Private Class
+        Create adjacency matriz
+        """
+        self._df = {}
+        matrix = self.adjacency_matrix()
+        
+        for x in range(len(matrix) - 1):
+            self._df[matrix[0][x]] = matrix[x + 1][1:]
+        
+        self._df = pd.DataFrame(data = self._df, index = self.adjacency_matrix()[0])
+
     def show_adjacency_matrix(self):
         """
         Show adjacency matrix
         """
-        df = {}
-        matrix = self.adjacency_matrix()
-        
-        for x in range(len(matrix) - 1):
-            df[matrix[0][x]] = matrix[x + 1][1:]
-        
-        df = pd.DataFrame(data = df, index = self.adjacency_matrix()[0])
-        df.to_csv('gephi.csv')
-
-        print(df)
+        self.__create_adjacency_matrix()
+        print(self._df)
+    
+    def adjacency_matrix_to_csv(self):
+        """
+        Transform the adjacency matrix into csv
+        """
+        self.__create_adjacency_matrix()
+        self._df.to_csv('gephi.csv')
 
 
     #Função de teste
@@ -260,6 +282,7 @@ class Graph():
         print(self._edges)
 
 #Area de teste
+
 G = Graph(5)
 G.label_vertice(0,"A")
 G.label_vertice(1,"B")
@@ -272,16 +295,20 @@ G.add_edge(3,4)
 G.ponder_edge(0,2,3)
 G.ponder_edge(0,1,900)
 #G.add_edge(1,2)
+
 G.show
 G.label_edge(0,2,"E51")
 G.ponder_edge(0,2,3)
 G.show
 print(G.existing_edges(1))
+
+print()
 print(G.adjacency_list())
 G.show_adjacency_list()
 print(G.adjacency_matrix())
 G.show_adjacency_matrix()
-
+print()
+G.adjacency_list_to_csv()
 
 
 
