@@ -13,7 +13,7 @@ class Graph():
         self._edges = []
 
         for i in range(n):
-            self._vertices.append(["",1]) 
+            self._vertices.append([str(i),1]) 
     
     @classmethod
     def create_from_matrix(cls,path_csv):
@@ -83,7 +83,7 @@ class Graph():
     def __get_vertice_index(self,label):
         """
         Private method
-        Get vertice index
+        Through the label it returns the index
         """
         for v in self._vertices:
             if v[0] == label:
@@ -92,21 +92,20 @@ class Graph():
     def __get_vertice_label(self,v):
         """
         Private method
-        Get the label name if exists
+        Through the vertice it returns the name of the label
         """
         vertice = self._vertices[v]
-
-        if vertice[0] == "":
-            return str(v)
-        else:
-            return vertice[0] 
+        return vertice[0] 
 
     def label_vertice(self,v,label):
         """
         Add a label to vertice
         """
         if not self.__check_vertice(v):
-            raise ValueError(f"Vertice {v} not found")
+            raise ValueError(f'Vertice {v} not found')
+
+        if self.__get_vertice_index(label):
+            raise ValueError(f'It already exists in vertice with the label {label}')
 
         self._vertices[v][0] = label
     
@@ -226,7 +225,7 @@ class Graph():
         """
         return self.__get_edge_index(v,w) >= 0
     
-    def __existing_edges(self,v):
+    def existing_edges(self,v):
         """
         Return all edges adjacent to vertice v
         """
@@ -254,7 +253,7 @@ class Graph():
             label_name = self.__get_vertice_label(vertice)
             aux_list.append(label_name)
 
-            for edge in self.__existing_edges(vertice):
+            for edge in self.existing_edges(vertice):
                 if edge[0] != label_name:
                     aux_list.append(edge[0])
                 else:
@@ -350,9 +349,11 @@ class Graph():
 
 #Area de teste
 
-Graph.create_from_list('lista.csv')
-Graph.create_from_matrix('Graph.csv')
+# Graph.create_from_list('lista.csv')
+# Graph.create_from_matrix('Graph.csv')
+
 # G = Graph(5)
+# G.existing_edges
 # G.label_vertice(0,"A")
 # G.label_vertice(1,"B")
 # G.label_vertice(2,"C")
