@@ -13,8 +13,56 @@ class Graph():
         self._edges = []
 
         for i in range(n):
-            self._vertices.append("") 
-     
+            self._vertices.append(["",1]) 
+    
+    @classmethod
+    def create_from_matrix(cls,path_csv):
+        """
+        Create a graph from an adjacence matrix
+        """
+        df = pd.read_csv(path_csv)
+        matrix = df.values.tolist()
+        
+        G = Graph(len(matrix))
+
+        for v in range(len(matrix)):
+            G.label_vertice(v,matrix[v][0])
+        
+        count = 1
+        for v in range(len(matrix)):
+            count += 1
+            for w in range(len(matrix[v]) - count):
+                t = w + count - 1
+                if matrix[v][t + 1] > 0:
+                    G.add_edge(v,t)
+                    G.ponder_edge(v,t,matrix[v][t + 1])
+        return G
+    
+    @classmethod
+    def create_from_list(cls,path_csv):
+        """
+        Create a graph from an adjacence matrix
+        """
+        df = pd.read_csv(path_csv,header=None)
+
+        list = df.values.tolist()
+
+        G = Graph(len(list))
+        
+        for v in range(len(list)):
+            G.label_vertice(v,list[v][0])
+
+        for v in range(len(list)):
+            for w in range(len(list[v]) - 1):
+
+                t = G.__get_vertice_index(list[v][w + 1])
+                if G.check_adjacency_between_vertices(v, t) or pd.isna(list[v][w + 1]):
+                    break
+
+                G.add_edge(v,t)
+        return G
+
+
     def __check_vertice(self,v):
         """
         Private method
@@ -32,17 +80,26 @@ class Graph():
                 return self._edges.index(edge)
         return -1  
 
+    def __get_vertice_index(self,label):
+        """
+        Private method
+        Get vertice index
+        """
+        for v in self._vertices:
+            if v[0] == label:
+                return self._vertices.index(v)
+
     def __get_vertice_label(self,v):
         """
         Private method
         Get the label name if exists
         """
-        label_name = self._vertices[v]
+        vertice = self._vertices[v]
 
-        if label_name == "":
+        if vertice[0] == "":
             return str(v)
         else:
-            return label_name  
+            return vertice[0] 
 
     def label_vertice(self,v,label):
         """
@@ -51,7 +108,7 @@ class Graph():
         if not self.__check_vertice(v):
             raise ValueError(f"Vertice {v} not found")
 
-        self._vertices[v] = label
+        self._vertices[v][0] = label
     
     def label_edge(self,v,w,label):
         """
@@ -78,7 +135,7 @@ class Graph():
             raise ValueError(f"There is no edge adjacent to {v} and {w}.")
 
     def __get_edge_weight(self, v, w):
-        if not self.check_adjacency(v,w):
+        if not self.check_adjacency_between_vertices(v,w):
             raise ValueError(f"There is no edge adjacent to {v} and {w}.")
         
         return self._edges[self.__get_edge_index(v,w)][2][0]
@@ -91,11 +148,11 @@ class Graph():
         """
         #Checks if the vertical exists
         if not self.__check_vertice(v) or not self.__check_vertice(w):
-            raise ValueError(f"Value Error: Pair of vertices {v} and {w} not found.")
+            raise ValueError(f"Pair of vertices {v} and {w} not found.")
 
 
         #Checks for parallel edges
-        if self.check_adjacency(v,w):
+        if self.check_adjacency_between_vertices(v,w):
             raise TypeError("The Graph library does not support parallel edges.")
 
         #Checks the existence of loops
@@ -151,18 +208,27 @@ class Graph():
 
         return False
     
-    def check_adjacency_between_edges(self,v,w,x,y):
-        pass
+    def check_adjacency_between_edges(self, edge_1: list, edge_2: list):
+        """
+        Check adjaceny between edges 
+        """
+
+        for v in range(2):
+            for w in range(2):
+                if edge_1[v] == edge_2[w]:
+                    return True
+
+        return False
     
-    def check_adjacency(self,v,w):
+    def check_adjacency_between_vertices(self,v,w):
         """
         Check adjaceny between vertices
         """
-        return self.__get_edge_index(v,w) >= 0 or self.__get_edge_index(w,v) >= 0
+        return self.__get_edge_index(v,w) >= 0
     
-    def existing_edges(self,v):
+    def __existing_edges(self,v):
         """
-        Return all edges adjacent to vertical v
+        Return all edges adjacent to vertice v
         """
         edge_list = []
 
@@ -188,7 +254,7 @@ class Graph():
             label_name = self.__get_vertice_label(vertice)
             aux_list.append(label_name)
 
-            for edge in self.existing_edges(vertice):
+            for edge in self.__existing_edges(vertice):
                 if edge[0] != label_name:
                     aux_list.append(edge[0])
                 else:
@@ -213,12 +279,12 @@ class Graph():
                     print(" --> ", end= "")
             print() 
 
-    def adjacency_list_to_csv(self):
+    def adjacency_list_to_csv(self, file_name = 'Graph'):
         """
          Transform the adjacency list into csv
         """
         df = pd.DataFrame(data = self.adjacency_list())
-        df.to_csv('gephi.csv',header= False, index= False)
+        df.to_csv(file_name + '.csv',header= False, index= False)
 
     def adjacency_matrix(self):
         """
@@ -237,7 +303,7 @@ class Graph():
             aux_list.append(self.__get_vertice_label(v))
 
             for w in range(len(self._vertices)):
-                if self.check_adjacency(v,w):
+                if self.check_adjacency_between_vertices(v,w):
                     aux_list.append(self.__get_edge_weight(v,w))
                 else:
                     aux_list.append(0)
@@ -267,49 +333,51 @@ class Graph():
         self.__create_adjacency_matrix()
         print(self._df)
     
-    def adjacency_matrix_to_csv(self):
+    def adjacency_matrix_to_csv(self,file_name = 'Graph'):
         """
         Transform the adjacency matrix into csv
         """
         self.__create_adjacency_matrix()
-        self._df.to_csv('gephi.csv')
+        self._df.to_csv(file_name + '.csv')
+
 
 
     #Função de teste
     @property
     def show(self):
-        print(self._vertices) 
-        print(self._edges)
+        print("Vertices: ",self._vertices) 
+        print("Edges: ",self._edges)
 
 #Area de teste
 
-G = Graph(5)
-G.label_vertice(0,"A")
-G.label_vertice(1,"B")
-G.label_vertice(2,"C")
-G.label_vertice(3,"D")
-G.label_vertice(4,"E")
-G.add_edge(0,1)
-G.add_edge(0,2)
-G.add_edge(3,4)
-G.ponder_edge(0,2,3)
-G.ponder_edge(0,1,900)
-#G.add_edge(1,2)
+Graph.create_from_list('lista.csv')
+Graph.create_from_matrix('Graph.csv')
+# G = Graph(5)
+# G.label_vertice(0,"A")
+# G.label_vertice(1,"B")
+# G.label_vertice(2,"C")
+# G.label_vertice(3,"D")
+# G.label_vertice(4,"E")
+# G.add_edge(0,1)
+# G.add_edge(0,2)
+# G.add_edge(3,4)
+# G.ponder_edge(0,2,3)
+# G.ponder_edge(0,1,900)
+# #G.add_edge(1,2)
 
-G.show
-G.label_edge(0,2,"E51")
-G.ponder_edge(0,2,3)
-G.show
-print(G.existing_edges(1))
-
-print()
-print(G.adjacency_list())
-G.show_adjacency_list()
-print(G.adjacency_matrix())
-G.show_adjacency_matrix()
-print()
-G.adjacency_list_to_csv()
+# G.show
+# G.label_edge(0,2,"E51")
+# G.ponder_edge(0,2,3)
+# G.show
 
 
-
+# print()
+# print(G.adjacency_list())
+# G.show_adjacency_list()
+# print(G.adjacency_matrix())
+# G.show_adjacency_matrix()
+# print()
+# G.adjacency_list_to_csv(file_name='lista')
+# G.adjacency_matrix_to_csv()
+# print(G.check_adjacency_between_edges([0,2],[0,55]))
 
