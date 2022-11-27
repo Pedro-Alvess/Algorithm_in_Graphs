@@ -1,6 +1,4 @@
-
 #%%
-
 import networkx as nx
 from matplotlib import pyplot as plt
 plt.rcParams["figure.figsize"] = (10,10)
@@ -21,8 +19,8 @@ def bfs(graph, starting_node):
                     queue.append(edge[0])
     return visited
 # %%
-nodes = 5
-edge_probability= 0.4
+nodes = 51
+edge_probability= 1
 
 G = nx.random_graphs.fast_gnp_random_graph(nodes, edge_probability)
 
@@ -51,8 +49,11 @@ def naive(graph):
 
     return bridges
 # %%
-def check_in_bridges():
-    pass 
+def check_in_bridges(bridges,edge):
+    for bridge in bridges:     
+        if edge == bridge or edge == (bridge[1],bridge[0]):
+            return True
+    return False
 # %%
 #Fleury
 print("Naive: ", naive(G))
@@ -72,15 +73,18 @@ def fleury(graph):
     
     aux_graph = graph.copy()
     sub_graph = graph.copy()
-    bridges = []
+    bridges = naive(sub_graph)
     trail.append(aux_node)
 
     while len(aux_graph.edges):
-        print(trail)
+        print(trail,end="\n\n")
         if len(aux_graph.edges(aux_node)) > 1:
             found = False
             for edge in aux_graph.edges(aux_node):
-                if edge not in bridges:
+                # print("ponte: ",bridges)
+                # print("Edge: ",edge)
+                # print(check_in_bridges(bridges,edge))
+                if not check_in_bridges(bridges,edge):
                     aux_node = edge[1]
                     aux_graph.remove_edge(edge[0],edge[1])
                     sub_graph.remove_edge(edge[0],edge[1])
@@ -96,12 +100,10 @@ def fleury(graph):
             aux_graph.remove_edge(edge[0],edge[1])
             sub_graph.remove_node(edge[0])
 
-            print("Vertices: ",sub_graph.nodes)
-            print("Arestas: ",sub_graph.edges)
+            # print("Vertices: ",sub_graph.nodes)
+            # print("Arestas: ",sub_graph.edges)
             bridges = naive(sub_graph) 
-            print(bridges)
-
-   
+            # print(bridges)
         else:
             if len(aux_graph.edges):
                 #draw_graph(aux_graph)
