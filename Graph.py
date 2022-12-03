@@ -7,13 +7,13 @@ class Graph():
         Initializes the class with the number of vertices n
         """
         if n <= 0:
-            raise ValueError(f"{n} is not a valid value. Try a value greater than 0.")
+            raise ValueError(f"{n} is not a valid value. Try a value greater than 0.") 
 
-        self._vertices = []
-        self._edges = []
+        self._vertices = [] 
+        self._edges = [] 
 
-        for i in range(n):
-            self._vertices.append([str(i),1]) 
+        for i in range(n): 
+            self._vertices.append([str(i),1])
     
     @classmethod
     def create_from_matrix(cls,path_csv):
@@ -41,7 +41,7 @@ class Graph():
     @classmethod
     def create_from_list(cls,path_csv):
         """
-        Create a graph from an adjacence matrix
+        Create a graph from an adjacence list
         """
         df = pd.read_csv(path_csv,header=None)
 
@@ -104,9 +104,6 @@ class Graph():
         if not self.__check_vertice(v):
             raise ValueError(f'Vertice {v} not found')
 
-        if self.__get_vertice_index(label):
-            raise ValueError(f'It already exists in vertice with the label {label}')
-
         self._vertices[v][0] = label
     
     def label_edge(self,v,w,label):
@@ -138,8 +135,6 @@ class Graph():
             raise ValueError(f"There is no edge adjacent to {v} and {w}.")
         
         return self._edges[self.__get_edge_index(v,w)][2][0]
-
-
 
     def add_edge(self,v,w):
         """
@@ -339,46 +334,6 @@ class Graph():
         self.__create_adjacency_matrix()
         self._df.to_csv(file_name + '.csv')
 
-
-
-    #Função de teste
-    @property
     def show(self):
         print("Vertices: ",self._vertices) 
         print("Edges: ",self._edges)
-
-#Area de teste
-
-# Graph.create_from_list('lista.csv')
-# Graph.create_from_matrix('Graph.csv')
-
-# G = Graph(5)
-# G.existing_edges
-# G.label_vertice(0,"A")
-# G.label_vertice(1,"B")
-# G.label_vertice(2,"C")
-# G.label_vertice(3,"D")
-# G.label_vertice(4,"E")
-# G.add_edge(0,1)
-# G.add_edge(0,2)
-# G.add_edge(3,4)
-# G.ponder_edge(0,2,3)
-# G.ponder_edge(0,1,900)
-# #G.add_edge(1,2)
-
-# G.show
-# G.label_edge(0,2,"E51")
-# G.ponder_edge(0,2,3)
-# G.show
-
-
-# print()
-# print(G.adjacency_list())
-# G.show_adjacency_list()
-# print(G.adjacency_matrix())
-# G.show_adjacency_matrix()
-# print()
-# G.adjacency_list_to_csv(file_name='lista')
-# G.adjacency_matrix_to_csv()
-# print(G.check_adjacency_between_edges([0,2],[0,55]))
-

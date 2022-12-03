@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 plt.rcParams["figure.figsize"] = (10,10)
 
 # %%
-def bfs(graph, starting_node):
+def breadth_first_search(graph, starting_node):
     visited = []
     queue = [starting_node]
     
@@ -19,12 +19,12 @@ def bfs(graph, starting_node):
                     queue.append(edge[0])
     return visited
 # %%
-nodes = 51
+nodes = 21
 edge_probability= 1
 
 G = nx.random_graphs.fast_gnp_random_graph(nodes, edge_probability)
 
-while len(bfs(G, 0)) < len(G.nodes):
+while len(breadth_first_search(G, 0)) < len(G.nodes):
     G = nx.random_graphs.fast_gnp_random_graph(nodes, edge_probability)
 
 def draw_graph(G):
@@ -35,29 +35,16 @@ def draw_graph(G):
 draw_graph(G)
 
 #%%
-def naive(graph):
-    bridges = []
-    aux_graph = graph.copy()
+def naive(graph,edge):
+    graph.remove_edge(edge[0],edge[1])
+    
+    is_bridge = len(breadth_first_search(graph, edge[0])) < len(graph.nodes)
 
-    for edge in graph.edges:
-        aux_graph.remove_edge(edge[0],edge[1])
-        
-        if len(bfs(aux_graph, edge[0])) < len(graph.nodes):
-            bridges.append(edge)
-        
-        aux_graph.add_edge(edge[0],edge[1])
+    graph.add_edge(edge[0],edge[1])
 
-    return bridges
-# %%
-def check_in_bridges(bridges,edge):
-    for bridge in bridges:     
-        if edge == bridge or edge == (bridge[1],bridge[0]):
-            return True
-    return False
+    return is_bridge
 # %%
 #Fleury
-print("Naive: ", naive(G))
-
 def fleury(graph):
     count_odd = 0
     aux_node = 0
@@ -73,7 +60,6 @@ def fleury(graph):
     
     aux_graph = graph.copy()
     sub_graph = graph.copy()
-    bridges = naive(sub_graph)
     trail.append(aux_node)
 
     while len(aux_graph.edges):
@@ -81,14 +67,11 @@ def fleury(graph):
         if len(aux_graph.edges(aux_node)) > 1:
             found = False
             for edge in aux_graph.edges(aux_node):
-                # print("ponte: ",bridges)
-                # print("Edge: ",edge)
-                # print(check_in_bridges(bridges,edge))
-                if not check_in_bridges(bridges,edge):
+
+                if not naive(sub_graph,edge):
                     aux_node = edge[1]
                     aux_graph.remove_edge(edge[0],edge[1])
                     sub_graph.remove_edge(edge[0],edge[1])
-                    bridges = naive(sub_graph)
                     found = True
                     break
 
@@ -100,20 +83,12 @@ def fleury(graph):
             aux_graph.remove_edge(edge[0],edge[1])
             sub_graph.remove_node(edge[0])
 
-            # print("Vertices: ",sub_graph.nodes)
-            # print("Arestas: ",sub_graph.edges)
-            bridges = naive(sub_graph) 
-            # print(bridges)
         else:
             if len(aux_graph.edges):
-                #draw_graph(aux_graph)
                 return []
     
         trail.append(aux_node)
     return trail
 
 print(fleury(G))
-
-
-
 # %%
