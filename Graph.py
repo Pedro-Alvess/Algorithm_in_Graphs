@@ -129,6 +129,13 @@ class Graph():
 
         else:
             raise ValueError(f"There is no edge adjacent to {v} and {w}.")
+    
+    def ponder_vertice(self, v, weight):
+        """
+        Add a weight to vertice
+        """        
+        self._vertices[v][1] = weight
+
 
     def __get_edge_weight(self, v, w):
         if not self.check_adjacency_between_vertices(v,w):
