@@ -62,13 +62,12 @@ def fleury(graph):
     sub_graph = graph.copy()
     trail.append(aux_node)
 
-    while len(aux_graph.edges):
-        print(trail,end="\n\n")
+    while len(aux_graph.edges): 
         if len(aux_graph.edges(aux_node)) > 1:
             found = False
-            for edge in aux_graph.edges(aux_node):
+            for edge in aux_graph.edges(aux_node): 
 
-                if not naive(sub_graph,edge):
+                if not naive(sub_graph,edge): 
                     aux_node = edge[1]
                     aux_graph.remove_edge(edge[0],edge[1])
                     sub_graph.remove_edge(edge[0],edge[1])
